@@ -524,6 +524,51 @@ input[type="date"] { cursor: pointer; }
   margin-top : auto;
 }
 
+/* ── BIM Toggle ─────────────────────────────────────────────────── */
+.bim-toggle {
+  display  : flex;
+  gap      : .3rem;
+  flex-wrap: wrap;
+}
+
+.toggle-btn {
+  flex          : 1;
+  padding       : .52rem .8rem;
+  border        : 2px solid var(--clr-border);
+  border-radius : var(--radius-sm);
+  background    : #fff;
+  font-family   : var(--font);
+  font-size     : .82rem;
+  font-weight   : 600;
+  color         : var(--clr-text-secondary);
+  cursor        : pointer;
+  white-space   : nowrap;
+  transition    : border-color .15s, background .15s, color .15s;
+}
+
+.toggle-btn:hover {
+  border-color : var(--clr-primary);
+  color        : var(--clr-primary);
+}
+
+.toggle-btn.active[data-value="all"] {
+  border-color : var(--clr-primary);
+  background   : var(--clr-primary-xlight);
+  color        : var(--clr-primary);
+}
+
+.toggle-btn.active[data-value="bim"] {
+  border-color : var(--clr-bim);
+  background   : var(--clr-bim-bg);
+  color        : var(--clr-bim);
+}
+
+.toggle-btn.active[data-value="non-bim"] {
+  border-color : var(--clr-non-bim);
+  background   : var(--clr-non-bim-bg);
+  color        : var(--clr-non-bim);
+}
+
 /* ── Utilities ──────────────────────────────────────────────────── */
 .hidden { display: none !important; }
 

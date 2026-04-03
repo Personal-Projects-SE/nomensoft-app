@@ -114,6 +114,22 @@
               <span class="field-error" id="error-date" role="alert" aria-live="polite"></span>
             </div>
 
+            <div class="form-group" id="group-status">
+              <label>Statut du patient</label>
+              <div class="bim-toggle" role="group" aria-label="Statut du patient">
+                <button type="button" class="toggle-btn active" data-value="all">
+                  Tous
+                </button>
+                <button type="button" class="toggle-btn" data-value="bim">
+                  ⭐ BIM
+                </button>
+                <button type="button" class="toggle-btn" data-value="non-bim">
+                  👤 Non-BIM
+                </button>
+              </div>
+              <span class="field-hint">Filtrer l'affichage des tarifs</span>
+            </div>
+
             <div class="form-group form-group-submit">
               <button type="submit" id="btn-search" class="btn-primary">
                 <span class="btn-text">Rechercher</span>
@@ -150,7 +166,7 @@
         <div class="prices-grid" role="region" aria-label="Tarifs">
 
           <!-- BIM column -->
-          <div class="price-col">
+          <div class="price-col" id="col-bim">
             <header class="price-col-header bim">
               <span aria-hidden="true">⭐</span>
               Régime préférentiel (BIM / VIPO)
@@ -176,7 +192,7 @@
           </div>
 
           <!-- NON-BIM column -->
-          <div class="price-col">
+          <div class="price-col" id="col-non-bim">
             <header class="price-col-header non-bim">
               <span aria-hidden="true">👤</span>
               Sans régime préférentiel (Non-BIM)

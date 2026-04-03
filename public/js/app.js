@@ -25,6 +25,10 @@ const els = {
   resultDocLink : document.getElementById('result-doc-link'),
   resultDocName : document.getElementById('result-doc-name'),
 
+  // Price columns (for filtering)
+  colBim        : document.getElementById('col-bim'),
+  colNonBim     : document.getElementById('col-non-bim'),
+
   // Prices
   price3300     : document.getElementById('price-3300'),
   price3600     : document.getElementById('price-3600'),
@@ -33,6 +37,9 @@ const els = {
   totalBim      : document.getElementById('total-bim'),
   totalNonBim   : document.getElementById('total-non-bim'),
 };
+
+// ─── State ────────────────────────────────────────────────────────
+let activeFilter = 'all'; // 'all' | 'bim' | 'non-bim'
 
 // ─── Init ─────────────────────────────────────────────────────────
 (function init() {
@@ -47,12 +54,42 @@ const els = {
 
   els.dateInput.addEventListener('change', () => clearFieldError('date'));
 
+  // BIM toggle
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.value;
+      applyFilter();
+    });
+  });
+
   // Form submission
   els.form.addEventListener('submit', e => {
     e.preventDefault();
     handleSearch();
   });
 })();
+
+// ─── Filter logic ─────────────────────────────────────────────────
+
+/**
+ * Show/hide the BIM and Non-BIM columns based on activeFilter.
+ * Also adjusts the grid to single-column when only one is shown.
+ */
+function applyFilter() {
+  const grid = document.querySelector('.prices-grid');
+  if (!els.colBim || !els.colNonBim || !grid) return;
+
+  const showBim    = activeFilter === 'all' || activeFilter === 'bim';
+  const showNonBim = activeFilter === 'all' || activeFilter === 'non-bim';
+
+  els.colBim.classList.toggle('hidden', !showBim);
+  els.colNonBim.classList.toggle('hidden', !showNonBim);
+
+  // Switch grid to single column when only one side is visible
+  grid.style.gridTemplateColumns = (showBim && showNonBim) ? '' : '1fr';
+}
 
 // ─── Search handler ───────────────────────────────────────────────
 async function handleSearch() {
@@ -139,8 +176,8 @@ function renderResults(data) {
   els.resultDesc.textContent = data.description ?? `Code ${data.code}`;
 
   // Period
-  const start   = formatBelgianDate(data.period.start);
-  const end     = data.period.end ? formatBelgianDate(data.period.end) : 'En cours';
+  const start = formatBelgianDate(data.period.start);
+  const end   = data.period.end ? formatBelgianDate(data.period.end) : 'En cours';
   els.resultPeriod.textContent = `${start} → ${end}`;
 
   // Official document link
@@ -165,7 +202,6 @@ function renderResults(data) {
   els.price1300.textContent = formatEuro(p1300);
   els.price1600.textContent = formatEuro(p1600);
 
-  // Totals (honoraire = part patient + intervention OA)
   els.totalBim.textContent = (p3300 !== null && p1300 !== null)
     ? formatEuro(round2(p3300 + p1300))
     : '—';
@@ -175,12 +211,13 @@ function renderResults(data) {
     : '—';
 
   showResults();
+  // Apply current filter before scrolling into view
+  applyFilter();
   els.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ─── Formatters / helpers ─────────────────────────────────────────
 
-/** Parse "23,50 €" → 23.50 (number) or null */
 function parseFeeAmount(str) {
   if (!str || str.trim() === '' || str === '—') return null;
   const cleaned = str.replace(/[€\s]/g, '').replace(',', '.');
@@ -188,7 +225,6 @@ function parseFeeAmount(str) {
   return isNaN(n) ? null : n;
 }
 
-/** Format number as "23,50 €" (Belgian locale) */
 function formatEuro(amount) {
   if (amount === null) return '—';
   return amount.toLocaleString('fr-BE', {
@@ -199,20 +235,17 @@ function formatEuro(amount) {
   });
 }
 
-/** "2024-01-15" → "15/01/2024" */
 function formatBelgianDate(isoStr) {
   if (!isoStr) return '?';
   const [y, m, d] = isoStr.split('-');
   return `${d}/${m}/${y}`;
 }
 
-/** Today as "YYYY-MM-DD" */
 function todayISO() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
+  return new Date().toISOString().split('T')[0];
 }
 
-/** Round to 2 decimal places to avoid floating-point drift */
 function round2(n) {
   return Math.round(n * 100) / 100;
 }
+
