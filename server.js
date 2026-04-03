@@ -72,6 +72,7 @@ async function fetchDescription(code) {
     // Si on arrive ici, la page s'est chargée mais la variable JS n'y est pas
     const $ = cheerio.load(data);
     const pageTitle = $('title').text().trim();
+    console.log(`[DEBUG] Variable introuvable. Statut HTTP: ${status}. Titre vu par le serveur: "${pageTitle}"`);
     return `[DEBUG] Variable introuvable. Statut HTTP: ${status}. Titre vu par le serveur: "${pageTitle}"`;
 
   } catch (err) {
