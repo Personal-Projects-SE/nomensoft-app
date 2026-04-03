@@ -46,50 +46,39 @@ function absoluteHref(href) {
 
 /**
  * Fetch the French libellé (description) for a nomenclature code.
- * Extracts data directly from the embedded 'labelHistory' JavaScript variable.
+ * DEBUG MODE: Renvoie l'erreur exacte si ça plante sur le cloud.
  */
 async function fetchDescription(code) {
   try {
-    const { data } = await axios.get(
+    const { data, status } = await axios.get(
       `${INAMI_BASE}/Nomen/fr/${code}`,
       { headers: HTTP_HEADERS, timeout: 8_000 }
     );
 
-    // 1. Zoek de JavaScript-variabele in de ruwe HTML-broncode
     const scriptMatch = data.match(/var\s+labelHistory\s*=\s*(\[[\s\S]*?\]);/);
     
     if (scriptMatch && scriptMatch[1]) {
       try {
-        // Parse de JSON string naar een echt JavaScript-object
         const labelHistory = JSON.parse(scriptMatch[1]);
-        
-        // Haal de nieuwste (eerste) label1Short op
         if (labelHistory.length > 0 && labelHistory[0].label1Short) {
           return labelHistory[0].label1Short.trim();
         }
+        return `[DEBUG] JSON trouvé mais label1Short est vide.`;
       } catch (err) {
-        console.error(`[Scraper Error] Kon JSON niet parsen voor code ${code}:`, err.message);
+        return `[DEBUG] Impossible de lire le JSON: ${err.message}`;
       }
     }
 
-    // 2. Fallback: als de variabele niet bestaat, probeer een textarea te vinden via Cheerio
+    // Si on arrive ici, la page s'est chargée mais la variable JS n'y est pas
     const $ = cheerio.load(data);
-    let description = null;
+    const pageTitle = $('title').text().trim();
+    return `[DEBUG] Variable introuvable. Statut HTTP: ${status}. Titre vu par le serveur: "${pageTitle}"`;
 
-    $('textarea').each((_, el) => {
-      const txt = $(el).val() || $(el).text();
-      if (txt && txt.trim() !== '') {
-        description = txt.trim();
-        return false; // Stop the loop
-      }
-    });
-
-    return description || null;
-  } catch {
-    return null;
+  } catch (err) {
+    // Si l'INAMI bloque le serveur Cloud (Erreur 403, Timeout, etc.)
+    return `[DEBUG] Blocage INAMI: ${err.message} (Statut HTTP: ${err.response?.status || 'Aucun'})`;
   }
 }
-
 /**
  * Fetch and parse the full fee history table for a nomenclature code.
  * Returns an object with parsed columns, dates and fee rows.
