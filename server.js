@@ -46,7 +46,7 @@ function absoluteHref(href) {
 
 /**
  * Fetch the French libellé (description) for a nomenclature code.
- * The detail page contains a <textarea> with the text.
+ * Extracts data directly from the embedded 'labelHistory' JavaScript variable.
  */
 async function fetchDescription(code) {
   try {
@@ -54,14 +54,37 @@ async function fetchDescription(code) {
       `${INAMI_BASE}/Nomen/fr/${code}`,
       { headers: HTTP_HEADERS, timeout: 8_000 }
     );
+
+    // 1. Zoek de JavaScript-variabele in de ruwe HTML-broncode
+    const scriptMatch = data.match(/var\s+labelHistory\s*=\s*(\[[\s\S]*?\]);/);
+    
+    if (scriptMatch && scriptMatch[1]) {
+      try {
+        // Parse de JSON string naar een echt JavaScript-object
+        const labelHistory = JSON.parse(scriptMatch[1]);
+        
+        // Haal de nieuwste (eerste) label1Short op
+        if (labelHistory.length > 0 && labelHistory[0].label1Short) {
+          return labelHistory[0].label1Short.trim();
+        }
+      } catch (err) {
+        console.error(`[Scraper Error] Kon JSON niet parsen voor code ${code}:`, err.message);
+      }
+    }
+
+    // 2. Fallback: als de variabele niet bestaat, probeer een textarea te vinden via Cheerio
     const $ = cheerio.load(data);
-    // The libellé is in a <textarea> – take the first non-empty one
     let description = null;
+
     $('textarea').each((_, el) => {
-      const txt = $(el).text().trim();
-      if (txt) { description = txt; return false; }
+      const txt = $(el).val() || $(el).text();
+      if (txt && txt.trim() !== '') {
+        description = txt.trim();
+        return false; // Stop the loop
+      }
     });
-    return description;
+
+    return description || null;
   } catch {
     return null;
   }
