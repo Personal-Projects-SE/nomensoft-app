@@ -35,20 +35,16 @@
     </nav>
 
     <section id="tab-tarifs" class="tab-panel active" role="tabpanel">
-
       <div class="card form-card">
         <div class="form-card-header">
           <div>
             <h2>Consulter les tarifs</h2>
-            <p class="subtitle">
-              Renseignez un code nomenclature (6 chiffres) et une date pour obtenir les tarifs applicables à cette date.
-            </p>
+            <p class="subtitle">Renseignez un code nomenclature (6 chiffres) et une date pour obtenir les tarifs applicables.</p>
           </div>
         </div>
 
         <form id="form-tarifs" novalidate>
           <div class="form-row">
-
             <div class="form-group" id="group-code">
               <label for="input-code">Code nomenclature</label>
               <div class="input-wrapper">
@@ -85,13 +81,11 @@
                 <span class="btn-spinner" aria-hidden="true"></span>
               </button>
             </div>
-
           </div>
         </form>
       </div>
 
       <div id="results-section" class="hidden" aria-live="polite">
-
         <div class="card result-meta-card">
           <div class="result-meta-inner">
             <div class="result-code-badge" id="result-code"></div>
@@ -155,9 +149,7 @@
           </div>
         </div>
 
-        <p class="legal-notice">
-          Les tarifs affichés sont issus de NomenSoft (INAMI-RIZIV). Seuls les textes officiels publiés ont valeur légale.
-        </p>
+        <p class="legal-notice">Les tarifs affichés sont issus de NomenSoft (INAMI-RIZIV). Seuls les textes officiels publiés ont valeur légale.</p>
       </div>
 
       <div id="error-section" class="hidden" role="alert">
@@ -169,7 +161,6 @@
           </div>
         </div>
       </div>
-
     </section>
 
     <section id="tab-compare" class="tab-panel hidden" role="tabpanel">
@@ -184,7 +175,6 @@
 
         <form id="form-compare" novalidate>
           <div class="form-row">
-            
             <div class="form-group" style="flex: 2;">
               <label for="input-csv">Fichier CSV (Export DB)</label>
               <div class="input-wrapper" style="padding: 0.5rem;">
@@ -240,16 +230,27 @@
           </div>
         </div>
 
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem;">
+          <label for="filter-audit-status" style="font-weight: 500; font-size: 0.9rem; color: #334155;">Afficher :</label>
+          <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.25rem;">
+            <select id="filter-audit-status" style="border: none; background: transparent; padding: 0.4rem; font-size: 0.9rem; outline: none; cursor: pointer; color: #0f172a;">
+              <option value="all">Tous les résultats</option>
+              <option value="ok">✅ Tarifs à jour uniquement</option>
+              <option value="obsolete">❌ Tarifs obsolètes / introuvables</option>
+            </select>
+          </div>
+        </div>
+
         <div class="card" style="margin-top: 1rem; overflow-x: auto;">
           <table id="table-results" style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-              <tr style="border-bottom: 2px solid #e2e8f0;">
-                <th style="padding: 0.75rem;">ID</th>
-                <th style="padding: 0.75rem;">INAMI</th>
-                <th style="padding: 0.75rem;">Type / Catégorie</th>
-                <th style="padding: 0.75rem;">Anciens prix (DB)</th>
-                <th style="padding: 0.75rem;">Nouveaux prix (INAMI)</th>
-                <th style="padding: 0.75rem;">Statut</th>
+              <tr style="border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">ID DB</th>
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">Code INAMI</th>
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">Type / Catégorie</th>
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">Anciens prix (DB)</th>
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">Nouveaux prix (INAMI)</th>
+                <th style="padding: 0.75rem; font-weight: 600; color: #475569;">Statut</th>
               </tr>
             </thead>
             <tbody id="tbody-results"></tbody>
@@ -267,13 +268,10 @@
       </div>
 
     </section>
-
   </main>
 
   <footer class="app-footer">
-    <p>
-      Données issues de NomenSoft INAMI-RIZIV · v1.0.0
-    </p>
+    <p>Données issues de NomenSoft INAMI-RIZIV · v1.0.0</p>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
