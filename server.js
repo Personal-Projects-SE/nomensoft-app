@@ -226,6 +226,92 @@ const RELEVANT_CODES = ['0', '1300', '1600', '3300', '3600', '1510', '1810', '35
   }
 });
 
+// ─── API endpoint BULK (Traitement par lots) ──────────────────────────────────
+app.post('/api/fees/bulk', async (req, res) => {
+  const requests = req.body;
+
+  if (!Array.isArray(requests)) {
+    return res.status(400).json({ error: "Le body doit être un tableau d'objets contenant 'code' et 'date'." });
+  }
+
+  const results = [];
+  const localCache = {}; // Cache pour ne pas interroger l'INAMI plusieurs fois pour le même code/date
+
+  for (const item of requests) {
+    const { code, date } = item;
+    if (!code || !date) continue;
+
+    const cacheKey = `${code}_${date}`;
+    
+    // Si déjà cherché dans cette même requête, on retourne le résultat du cache
+    if (localCache[cacheKey]) {
+      results.push(localCache[cacheKey]);
+      continue;
+    }
+
+    try {
+      // On exécute les appels INAMI en parallèle
+      const [history, description] = await Promise.all([
+        fetchFeeHistory(code),
+        fetchDescription(code),
+      ]);
+
+      const { documents, startDates, endDates, feeRows } = history;
+      let col = -1;
+      
+      // Recherche de la bonne colonne tarifaire
+      for (let i = 0; i < startDates.length; i++) {
+        const start = startDates[i];
+        const end   = endDates[i];
+        if (!start) continue;
+        if (date >= start && (!end || date <= end)) {
+          col = i;
+          break;
+        }
+      }
+
+      if (col === -1) {
+        const notFoundData = { code, date, error: "Aucun tarif trouvé à cette date", fees: null };
+        localCache[cacheKey] = notFoundData;
+        results.push(notFoundData);
+        continue;
+      }
+
+      // Extraction des codes spécifiques
+      const RELEVANT_CODES = ['0', '1300', '1600', '3300', '3600', '1510', '1810', '3510', '3810'];
+      const fees = {};
+      RELEVANT_CODES.forEach(fc => {
+        fees[fc] = feeRows[fc]?.[col] ?? null;
+      });
+
+      const successData = {
+        code,
+        description,
+        date,
+        period: {
+          start: startDates[col],
+          end  : endDates[col] ?? null,
+        },
+        document: documents[col] ?? null,
+        fees,
+      };
+
+      // On sauvegarde dans le cache puis on l'ajoute aux résultats
+      localCache[cacheKey] = successData;
+      results.push(successData);
+
+    } catch (err) {
+      console.error(`[BULK ERROR] code ${code}:`, err.message);
+      const errData = { code, date, error: err.message, fees: null };
+      localCache[cacheKey] = errData;
+      results.push(errData);
+    }
+  }
+
+  // On renvoie la liste complète des réponses
+  return res.json(results);
+});
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`
