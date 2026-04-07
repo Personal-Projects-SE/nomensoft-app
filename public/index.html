@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- ═══════════════════ HEADER ═══════════════════ -->
   <header class="app-header">
     <div class="header-inner">
       <div class="header-brand">
@@ -21,58 +20,28 @@
     </div>
   </header>
 
-  <!-- ═══════════════════ MAIN ═══════════════════ -->
   <main class="app-main">
 
-    <!-- Tab navigation -->
     <nav class="tabs-nav" role="tablist" aria-label="Fonctionnalités">
-      <button
-        class="tab-btn active"
-        role="tab"
-        aria-selected="true"
-        aria-controls="tab-tarifs"
-        data-tab="tarifs"
-      >
-        <span class="tab-icon" aria-hidden="true">💰</span>
-        Tarifs par date
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tarifs">
+        <span class="tab-icon" aria-hidden="true">💰</span> Tarifs par date
       </button>
-      <button
-        class="tab-btn tab-disabled"
-        role="tab"
-        aria-selected="false"
-        aria-disabled="true"
-        tabindex="-1"
-        title="Bientôt disponible"
-      >
-        <span class="tab-icon" aria-hidden="true">🔍</span>
-        Comparaison BIM / Non-BIM
-        <span class="badge-soon">Bientôt</span>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="compare">
+        <span class="tab-icon" aria-hidden="true">🔍</span> Audit Base de Données
       </button>
-      <button
-        class="tab-btn tab-disabled"
-        role="tab"
-        aria-selected="false"
-        aria-disabled="true"
-        tabindex="-1"
-        title="Bientôt disponible"
-      >
-        <span class="tab-icon" aria-hidden="true">📊</span>
-        Historique des tarifs
-        <span class="badge-soon">Bientôt</span>
+      <button class="tab-btn tab-disabled" role="tab" aria-disabled="true" tabindex="-1" title="Bientôt disponible">
+        <span class="tab-icon" aria-hidden="true">📊</span> Historique <span class="badge-soon">Bientôt</span>
       </button>
     </nav>
 
-    <!-- ─── TAB 1 : Tarifs par date ─── -->
-    <section id="tab-tarifs" class="tab-panel" role="tabpanel" aria-labelledby="">
+    <section id="tab-tarifs" class="tab-panel active" role="tabpanel">
 
-      <!-- Search form -->
       <div class="card form-card">
         <div class="form-card-header">
           <div>
             <h2>Consulter les tarifs</h2>
             <p class="subtitle">
-              Renseignez un code nomenclature (6 chiffres) et une date pour obtenir
-              les tarifs applicables à cette date.
+              Renseignez un code nomenclature (6 chiffres) et une date pour obtenir les tarifs applicables à cette date.
             </p>
           </div>
         </div>
@@ -84,50 +53,30 @@
               <label for="input-code">Code nomenclature</label>
               <div class="input-wrapper">
                 <span class="input-icon" aria-hidden="true">#</span>
-                <input
-                  type="text"
-                  id="input-code"
-                  name="code"
-                  placeholder="ex : 101032"
-                  maxlength="6"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  aria-describedby="hint-code error-code"
-                />
+                <input type="text" id="input-code" name="code" placeholder="ex : 101032" maxlength="6" inputmode="numeric" autocomplete="off" />
               </div>
-              <span class="field-hint" id="hint-code">6 chiffres uniquement</span>
-              <span class="field-error" id="error-code" role="alert" aria-live="polite"></span>
+              <span class="field-error" id="error-code"></span>
             </div>
 
             <div class="form-group" id="group-date">
               <label for="input-date">Date de référence</label>
               <div class="input-wrapper">
                 <span class="input-icon" aria-hidden="true">📅</span>
-                <input
-                  type="date"
-                  id="input-date"
-                  name="date"
-                  aria-describedby="hint-date error-date"
-                />
+                <input type="date" id="input-date" name="date" />
               </div>
-              <span class="field-hint" id="hint-date">Tarifs applicables à cette date</span>
-              <span class="field-error" id="error-date" role="alert" aria-live="polite"></span>
+              <span class="field-error" id="error-date"></span>
             </div>
 
             <div class="form-group" id="group-status">
-              <label>Statut du patient</label>
-              <div class="bim-toggle" role="group" aria-label="Statut du patient">
-                <button type="button" class="toggle-btn active" data-value="all">
-                  Tous
-                </button>
-                <button type="button" class="toggle-btn" data-value="bim">
-                  ⭐ BIM
-                </button>
-                <button type="button" class="toggle-btn" data-value="non-bim">
-                  👤 Non-BIM
-                </button>
+              <label for="input-status">Statut du patient</label>
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">👤</span>
+                <select id="input-status" class="form-input" style="width: 100%; border: none; background: transparent; padding: 0.5rem; outline: none; cursor: pointer;">
+                  <option value="all">Tous les statuts</option>
+                  <option value="bim">BIM uniquement</option>
+                  <option value="non-bim">Non-BIM uniquement</option>
+                </select>
               </div>
-              <span class="field-hint">Filtrer l'affichage des tarifs</span>
             </div>
 
             <div class="form-group form-group-submit">
@@ -141,10 +90,8 @@
         </form>
       </div>
 
-      <!-- ── Results ── -->
       <div id="results-section" class="hidden" aria-live="polite">
 
-        <!-- Nomenclature meta card -->
         <div class="card result-meta-card">
           <div class="result-meta-inner">
             <div class="result-code-badge" id="result-code"></div>
@@ -155,23 +102,18 @@
                 <strong id="result-period-text"></strong>
               </p>
             </div>
-            <a id="result-doc-link" href="#" target="_blank" rel="noopener noreferrer" class="doc-link">
+            <a id="result-doc-link" href="#" target="_blank" rel="noopener noreferrer" class="doc-link hidden">
               <span aria-hidden="true">📄</span>
               <span id="result-doc-name">Document officiel</span>
             </a>
           </div>
         </div>
 
-        <!-- Price grid: 2 columns (BIM / Non-BIM) -->
         <div class="prices-grid" role="region" aria-label="Tarifs">
-
-          <!-- BIM column -->
           <div class="price-col" id="col-bim">
             <header class="price-col-header bim">
-              <span aria-hidden="true">⭐</span>
-              Régime préférentiel (BIM / VIPO)
+              <span aria-hidden="true">⭐</span> Régime préférentiel (BIM / VIPO)
             </header>
-
             <div class="price-row">
               <div class="price-card card-patient">
                 <div class="price-card-label">Ticket modérateur patient</div>
@@ -184,20 +126,16 @@
                 <div class="price-card-amount" id="price-1300">—</div>
               </div>
             </div>
-
             <div class="price-total">
               <span class="price-total-label">Honoraire total BIM</span>
               <span class="price-total-amount" id="total-bim">—</span>
             </div>
           </div>
 
-          <!-- NON-BIM column -->
           <div class="price-col" id="col-non-bim">
             <header class="price-col-header non-bim">
-              <span aria-hidden="true">👤</span>
-              Sans régime préférentiel (Non-BIM)
+              <span aria-hidden="true">👤</span> Sans régime préférentiel (Non-BIM)
             </header>
-
             <div class="price-row">
               <div class="price-card card-patient">
                 <div class="price-card-label">Ticket modérateur patient</div>
@@ -210,24 +148,19 @@
                 <div class="price-card-amount" id="price-1600">—</div>
               </div>
             </div>
-
             <div class="price-total">
               <span class="price-total-label">Honoraire total Non-BIM</span>
               <span class="price-total-amount" id="total-non-bim">—</span>
             </div>
           </div>
-
-        </div><!-- /prices-grid -->
+        </div>
 
         <p class="legal-notice">
-          Les tarifs affichés sont issus de NomenSoft (INAMI-RIZIV). Seuls les textes officiels publiés
-          (arrêtés royaux, circulaires) ont valeur légale.
+          Les tarifs affichés sont issus de NomenSoft (INAMI-RIZIV). Seuls les textes officiels publiés ont valeur légale.
         </p>
+      </div>
 
-      </div><!-- /results-section -->
-
-      <!-- Error state -->
-      <div id="error-section" class="hidden" role="alert" aria-live="assertive">
+      <div id="error-section" class="hidden" role="alert">
         <div class="card error-card">
           <span class="error-icon" aria-hidden="true">⚠️</span>
           <div>
@@ -238,21 +171,112 @@
       </div>
 
     </section>
-    <!-- /tab-tarifs -->
+
+    <section id="tab-compare" class="tab-panel hidden" role="tabpanel">
+      
+      <div class="card form-card">
+        <div class="form-card-header">
+          <div>
+            <h2>Auditer les tarifs de la base de données</h2>
+            <p class="subtitle">Importez un export CSV de <code>consultation_consultation</code> pour vérifier la conformité des prix INAMI à une date donnée.</p>
+          </div>
+        </div>
+
+        <form id="form-compare" novalidate>
+          <div class="form-row">
+            
+            <div class="form-group" style="flex: 2;">
+              <label for="input-csv">Fichier CSV (Export DB)</label>
+              <div class="input-wrapper" style="padding: 0.5rem;">
+                <input type="file" id="input-csv" accept=".csv" required style="width: 100%; cursor: pointer;" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-compare-type">Type de consultation</label>
+              <div class="input-wrapper">
+                <select id="input-compare-type" class="form-input" style="width:100%; border:none; background:transparent; padding:0.5rem; outline:none; cursor:pointer;">
+                  <option value="all">Tous (eFact & non-eFact)</option>
+                  <option value="efact">eFact uniquement</option>
+                  <option value="not_efact">Non-eFact uniquement</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-compare-date">Date de référence</label>
+              <div class="input-wrapper">
+                <input type="date" id="input-compare-date" required />
+              </div>
+            </div>
+
+            <div class="form-group form-group-submit" style="align-self: flex-end;">
+              <button type="submit" id="btn-run-compare" class="btn-primary">
+                <span class="btn-text">Lancer l'audit</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div id="compare-progress-section" class="hidden">
+        <div class="card" style="text-align: center; padding: 2rem;">
+          <h3 id="progress-text">Analyse en cours... 0 / 0</h3>
+          <div style="width: 100%; background: #e2e8f0; border-radius: 8px; height: 12px; margin-top: 1rem; overflow: hidden;">
+            <div id="progress-bar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="compare-results-section" class="hidden">
+        <div class="prices-grid">
+          <div class="price-col">
+            <header class="price-col-header bim" style="background: #10b981; color: white;">✅ Tarifs à jour</header>
+            <div class="price-total"><span class="price-total-amount" id="count-ok">0</span> codes</div>
+          </div>
+          <div class="price-col">
+            <header class="price-col-header non-bim" style="background: #ef4444; color: white;">❌ Tarifs obsolètes</header>
+            <div class="price-total"><span class="price-total-amount" id="count-obsolete">0</span> codes</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1rem; overflow-x: auto;">
+          <table id="table-results" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 0.75rem;">ID</th>
+                <th style="padding: 0.75rem;">INAMI</th>
+                <th style="padding: 0.75rem;">Type / Catégorie</th>
+                <th style="padding: 0.75rem;">Anciens prix (DB)</th>
+                <th style="padding: 0.75rem;">Nouveaux prix (INAMI)</th>
+                <th style="padding: 0.75rem;">Statut</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-results"></tbody>
+          </table>
+        </div>
+
+        <div id="sql-section" class="card hidden" style="margin-top: 1rem; background: #1e293b; color: #f8fafc;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin:0; color: #38bdf8;">⚙️ Script SQL de correction généré</h3>
+            <button id="btn-copy-sql" class="btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.85rem; border: none; cursor: pointer; color: white;">Copier</button>
+          </div>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem;">Ce script met à jour uniquement les tarifs obsolètes de la table <code>consultation_consultation</code> en se basant sur leur ID unique.</p>
+          <pre style="background: #0f172a; padding: 1rem; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 0.85rem;"><code id="sql-code"></code></pre>
+        </div>
+      </div>
+
+    </section>
 
   </main>
 
-  <!-- ═══════════════════ FOOTER ═══════════════════ -->
   <footer class="app-footer">
     <p>
-      Données issues de
-      <a href="https://webappsa.riziv-inami.fgov.be/Nomen/fr/search" target="_blank" rel="noopener noreferrer">
-        NomenSoft INAMI-RIZIV
-      </a>
-      · Application locale · v1.0.0
+      Données issues de NomenSoft INAMI-RIZIV · v1.0.0
     </p>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>

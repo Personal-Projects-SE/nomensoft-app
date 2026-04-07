@@ -196,8 +196,7 @@ app.get('/api/fees', async (req, res) => {
     }
 
     // ── Extract the 4 relevant fee codes + honoraire de base ─────────────────
-    const RELEVANT_CODES = ['0', '1300', '1600', '3300', '3600'];
-    const fees = {};
+const RELEVANT_CODES = ['0', '1300', '1600', '3300', '3600', '1510', '1810', '3510', '3810'];    const fees = {};
     RELEVANT_CODES.forEach(fc => {
       fees[fc] = feeRows[fc]?.[col] ?? null;
     });
