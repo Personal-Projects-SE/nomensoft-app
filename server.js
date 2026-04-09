@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const path    = require('path');
 
 const app  = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const INAMI_BASE = 'https://webappsa.riziv-inami.fgov.be';
 const HTTP_HEADERS = {
