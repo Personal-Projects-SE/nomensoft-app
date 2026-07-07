@@ -569,6 +569,74 @@ input[type="date"] { cursor: pointer; }
   color        : var(--clr-non-bim);
 }
 
+/* ── Doctor blocks ──────────────────────────────────────────────── */
+:root {
+  --clr-stagiaire      : #92400e;
+  --clr-stagiaire-bg   : #fffbeb;
+  --clr-stagiaire-border: #fcd34d;
+  --clr-agree          : #065f46;
+  --clr-agree-bg       : #ecfdf5;
+  --clr-agree-border   : #6ee7b7;
+}
+
+.doctor-block {
+  margin-bottom: var(--gap);
+}
+
+.doctor-block-header {
+  display      : flex;
+  align-items  : center;
+  gap          : .6rem;
+  padding      : .7rem 1.1rem;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size    : .875rem;
+  font-weight  : 700;
+  margin-bottom: .5rem;
+  border-left  : 4px solid;
+}
+
+.doctor-block-header.agree {
+  background  : var(--clr-agree-bg);
+  color       : var(--clr-agree);
+  border-color: var(--clr-agree-border);
+}
+
+.doctor-block-header.stagiaire {
+  background  : var(--clr-stagiaire-bg);
+  color       : var(--clr-stagiaire);
+  border-color: var(--clr-stagiaire-border);
+}
+
+.stagiaire-badge {
+  margin-left     : auto;
+  background      : var(--clr-stagiaire);
+  color           : #fff;
+  font-size       : .75rem;
+  font-weight     : 800;
+  padding         : .15rem .55rem;
+  border-radius   : 20px;
+  letter-spacing  : .03em;
+}
+
+/* Stagiaire total row — deux lignes (label + base hint) */
+.stagiaire-total {
+  flex-direction: row;
+  align-items   : center;
+}
+
+.price-total-base {
+  display    : block;
+  font-size  : .7rem;
+  font-weight: 400;
+  opacity    : .65;
+  margin-top : .1rem;
+}
+
+/* Single-col helper when one patient column is hidden */
+.prices-grid.single-col {
+  grid-template-columns: 1fr;
+}
+
 /* ── Utilities ──────────────────────────────────────────────────── */
 .hidden { display: none !important; }
 

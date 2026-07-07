@@ -75,6 +75,18 @@
               </div>
             </div>
 
+            <div class="form-group" id="group-doctor">
+              <label for="input-doctor">Type de médecin</label>
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">🩺</span>
+                <select id="input-doctor" class="form-input" style="width: 100%; border: none; background: transparent; padding: 0.5rem; outline: none; cursor: pointer;">
+                  <option value="agree">Agréé</option>
+                  <option value="stagiaire">En formation (stagiaire) — 75%</option>
+                  <option value="both">Les deux</option>
+                </select>
+              </div>
+            </div>
+
             <div class="form-group form-group-submit">
               <button type="submit" id="btn-search" class="btn-primary">
                 <span class="btn-text">Rechercher</span>
@@ -103,48 +115,115 @@
           </div>
         </div>
 
-        <div class="prices-grid" role="region" aria-label="Tarifs">
-          <div class="price-col" id="col-bim">
-            <header class="price-col-header bim">
-              <span aria-hidden="true">⭐</span> Régime préférentiel (BIM / VIPO)
-            </header>
-            <div class="price-row">
-              <div class="price-card card-patient">
-                <div class="price-card-label">Ticket modérateur patient</div>
-                <div class="price-card-subtext">Part personnelle · code 3300</div>
-                <div class="price-card-amount" id="price-3300">—</div>
+        <!-- ── BLOC AGRÉÉ ── -->
+        <div class="doctor-block" id="block-agree">
+          <div class="doctor-block-header agree">
+            <span aria-hidden="true">✅</span>
+            <span>Médecin agréé</span>
+          </div>
+          <div class="prices-grid" role="region" aria-label="Tarifs médecin agréé">
+            <div class="price-col" id="col-bim">
+              <header class="price-col-header bim">
+                <span aria-hidden="true">⭐</span> Régime préférentiel (BIM / VIPO)
+              </header>
+              <div class="price-row">
+                <div class="price-card card-patient">
+                  <div class="price-card-label">Ticket modérateur patient</div>
+                  <div class="price-card-subtext">Part personnelle · code 3300</div>
+                  <div class="price-card-amount" id="price-3300">—</div>
+                </div>
+                <div class="price-card card-oa">
+                  <div class="price-card-label">Intervention OA / Mutuelle</div>
+                  <div class="price-card-subtext">Remboursement · code 1300</div>
+                  <div class="price-card-amount" id="price-1300">—</div>
+                </div>
               </div>
-              <div class="price-card card-oa">
-                <div class="price-card-label">Intervention OA / Mutuelle</div>
-                <div class="price-card-subtext">Remboursement · code 1300</div>
-                <div class="price-card-amount" id="price-1300">—</div>
+              <div class="price-total">
+                <span class="price-total-label">Honoraire total BIM</span>
+                <span class="price-total-amount" id="total-bim">—</span>
               </div>
             </div>
-            <div class="price-total">
-              <span class="price-total-label">Honoraire total BIM</span>
-              <span class="price-total-amount" id="total-bim">—</span>
+
+            <div class="price-col" id="col-non-bim">
+              <header class="price-col-header non-bim">
+                <span aria-hidden="true">👤</span> Sans régime préférentiel (Non-BIM)
+              </header>
+              <div class="price-row">
+                <div class="price-card card-patient">
+                  <div class="price-card-label">Ticket modérateur patient</div>
+                  <div class="price-card-subtext">Part personnelle · code 3600</div>
+                  <div class="price-card-amount" id="price-3600">—</div>
+                </div>
+                <div class="price-card card-oa">
+                  <div class="price-card-label">Intervention OA / Mutuelle</div>
+                  <div class="price-card-subtext">Remboursement · code 1600</div>
+                  <div class="price-card-amount" id="price-1600">—</div>
+                </div>
+              </div>
+              <div class="price-total">
+                <span class="price-total-label">Honoraire total Non-BIM</span>
+                <span class="price-total-amount" id="total-non-bim">—</span>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="price-col" id="col-non-bim">
-            <header class="price-col-header non-bim">
-              <span aria-hidden="true">👤</span> Sans régime préférentiel (Non-BIM)
-            </header>
-            <div class="price-row">
-              <div class="price-card card-patient">
-                <div class="price-card-label">Ticket modérateur patient</div>
-                <div class="price-card-subtext">Part personnelle · code 3600</div>
-                <div class="price-card-amount" id="price-3600">—</div>
+        <!-- ── BLOC STAGIAIRE ── -->
+        <div class="doctor-block hidden" id="block-stagiaire">
+          <div class="doctor-block-header stagiaire">
+            <span aria-hidden="true">🎓</span>
+            <span>Médecin en formation (stagiaire) — honoraires réduits à 75%</span>
+            <span class="stagiaire-badge">−25%</span>
+          </div>
+          <div class="prices-grid" role="region" aria-label="Tarifs médecin stagiaire">
+            <div class="price-col" id="stag-col-bim">
+              <header class="price-col-header bim">
+                <span aria-hidden="true">⭐</span> Régime préférentiel (BIM / VIPO)
+              </header>
+              <div class="price-row">
+                <div class="price-card card-patient">
+                  <div class="price-card-label">Ticket modérateur patient</div>
+                  <div class="price-card-subtext">Part personnelle · inchangée</div>
+                  <div class="price-card-amount" id="stag-price-tm-bim">—</div>
+                </div>
+                <div class="price-card card-oa">
+                  <div class="price-card-label">Intervention OA / Mutuelle</div>
+                  <div class="price-card-subtext">Honoraire×75% − TM</div>
+                  <div class="price-card-amount" id="stag-price-oa-bim">—</div>
+                </div>
               </div>
-              <div class="price-card card-oa">
-                <div class="price-card-label">Intervention OA / Mutuelle</div>
-                <div class="price-card-subtext">Remboursement · code 1600</div>
-                <div class="price-card-amount" id="price-1600">—</div>
+              <div class="price-total stagiaire-total">
+                <div>
+                  <span class="price-total-label">Honoraire stagiaire BIM</span>
+                  <span class="price-total-base" id="stag-base-bim"></span>
+                </div>
+                <span class="price-total-amount" id="stag-total-bim">—</span>
               </div>
             </div>
-            <div class="price-total">
-              <span class="price-total-label">Honoraire total Non-BIM</span>
-              <span class="price-total-amount" id="total-non-bim">—</span>
+
+            <div class="price-col" id="stag-col-non-bim">
+              <header class="price-col-header non-bim">
+                <span aria-hidden="true">👤</span> Sans régime préférentiel (Non-BIM)
+              </header>
+              <div class="price-row">
+                <div class="price-card card-patient">
+                  <div class="price-card-label">Ticket modérateur patient</div>
+                  <div class="price-card-subtext">Part personnelle · inchangée</div>
+                  <div class="price-card-amount" id="stag-price-tm-non-bim">—</div>
+                </div>
+                <div class="price-card card-oa">
+                  <div class="price-card-label">Intervention OA / Mutuelle</div>
+                  <div class="price-card-subtext">Honoraire×75% − TM</div>
+                  <div class="price-card-amount" id="stag-price-oa-non-bim">—</div>
+                </div>
+              </div>
+              <div class="price-total stagiaire-total">
+                <div>
+                  <span class="price-total-label">Honoraire stagiaire Non-BIM</span>
+                  <span class="price-total-base" id="stag-base-non-bim"></span>
+                </div>
+                <span class="price-total-amount" id="stag-total-non-bim">—</span>
+              </div>
             </div>
           </div>
         </div>

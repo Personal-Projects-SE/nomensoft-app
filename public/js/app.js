@@ -13,6 +13,7 @@ const els = {
   codeInput: document.getElementById('input-code'),
   dateInput: document.getElementById('input-date'),
   statusInput: document.getElementById('input-status'),
+  doctorInput: document.getElementById('input-doctor'),
   btnSearch: document.getElementById('btn-search'),
   resultsSection: document.getElementById('results-section'),
   errorSection: document.getElementById('error-section'),
@@ -20,14 +21,36 @@ const els = {
   resultCode: document.getElementById('result-code'),
   resultDesc: document.getElementById('result-description'),
   resultPeriod: document.getElementById('result-period-text'),
+
+  // Blocs doctor
+  blockAgree   : document.getElementById('block-agree'),
+  blockStagiaire: document.getElementById('block-stagiaire'),
+
+  // Agréé — colonnes patient
+  colBim   : document.getElementById('col-bim'),
+  colNonBim: document.getElementById('col-non-bim'),
+
+  // Agréé — montants
   price3300: document.getElementById('price-3300'),
   price3600: document.getElementById('price-3600'),
   price1300: document.getElementById('price-1300'),
   price1600: document.getElementById('price-1600'),
-  totalBim: document.getElementById('total-bim'),
+  totalBim : document.getElementById('total-bim'),
   totalNonBim: document.getElementById('total-non-bim'),
-  colBim: document.getElementById('col-bim'),
-  colNonBim: document.getElementById('col-non-bim'),
+
+  // Stagiaire — colonnes patient
+  stagColBim   : document.getElementById('stag-col-bim'),
+  stagColNonBim: document.getElementById('stag-col-non-bim'),
+
+  // Stagiaire — montants
+  stagTmBim     : document.getElementById('stag-price-tm-bim'),
+  stagOaBim     : document.getElementById('stag-price-oa-bim'),
+  stagTotalBim  : document.getElementById('stag-total-bim'),
+  stagBaseBim   : document.getElementById('stag-base-bim'),
+  stagTmNonBim  : document.getElementById('stag-price-tm-non-bim'),
+  stagOaNonBim  : document.getElementById('stag-price-oa-non-bim'),
+  stagTotalNonBim: document.getElementById('stag-total-non-bim'),
+  stagBaseNonBim: document.getElementById('stag-base-non-bim'),
 
   // Tab 2 : Audit DB
   formCompare: document.getElementById('form-compare'),
@@ -48,6 +71,9 @@ const els = {
   auditFilter: document.getElementById('filter-audit-status')
 };
 
+// ─── Module state ─────────────────────────────────────────────────
+let lastApiData = null; // Dernière réponse API stockée pour recalcul sans nouvel appel
+
 (function init() {
   els.dateInput.value = todayISO();
   if (els.dateCompare) els.dateCompare.value = todayISO();
@@ -63,7 +89,11 @@ const els = {
   });
 
   els.codeInput.addEventListener('input', () => els.codeInput.value = els.codeInput.value.replace(/\D/g, '').slice(0, 6));
-  els.statusInput.addEventListener('change', () => { if (!els.resultsSection.classList.contains('hidden')) applyStatusFilter(); });
+
+  // Filtres : recalcul immédiat si des données sont déjà chargées
+  els.statusInput.addEventListener('change', () => { if (lastApiData) applyFilters(); });
+  els.doctorInput.addEventListener('change', () => { if (lastApiData) applyFilters(); });
+
   els.form.addEventListener('submit', e => { e.preventDefault(); handleSearch(); });
 
   if (els.formCompare) {
@@ -107,12 +137,23 @@ async function handleSearch() {
 }
 
 function renderResults(data) {
+  lastApiData = data;
+
+  // ── Meta ──────────────────────────────────────────────────────
   els.resultCode.textContent = data.code;
   els.resultDesc.textContent = data.description ?? `Code ${data.code}`;
   els.resultPeriod.textContent = `${formatBelgianDate(data.period.start)} → ${data.period.end ? formatBelgianDate(data.period.end) : 'En cours'}`;
 
-  const bimTM = getBestFee(data, '3300', '3510');
-  const bimOA = getBestFee(data, '1300', '1510');
+  if (data.document?.link) {
+    const link = document.getElementById('result-doc-link');
+    if (link) { link.href = data.document.link; link.classList.remove('hidden'); }
+    const name = document.getElementById('result-doc-name');
+    if (name) name.textContent = data.document.name ?? 'Document officiel';
+  }
+
+  // ── Agréé — remplissage des montants ──────────────────────────
+  const bimTM  = getBestFee(data, '3300', '3510');
+  const bimOA  = getBestFee(data, '1300', '1510');
   const normTM = getBestFee(data, '3600', '3810');
   const normOA = getBestFee(data, '1600', '1810');
 
@@ -126,18 +167,91 @@ function renderResults(data) {
   els.price3600.previousElementSibling.textContent = `Part personnelle · code ${normTM.usedCode}`;
   els.price1600.previousElementSibling.textContent = `Remboursement · code ${normOA.usedCode}`;
 
-  els.totalBim.textContent = (bimTM.value !== null && bimOA.value !== null) ? formatEuro(round2(bimTM.value + bimOA.value)) : '—';
+  els.totalBim.textContent    = (bimTM.value  !== null && bimOA.value  !== null) ? formatEuro(round2(bimTM.value  + bimOA.value))  : '—';
   els.totalNonBim.textContent = (normTM.value !== null && normOA.value !== null) ? formatEuro(round2(normTM.value + normOA.value)) : '—';
 
-  showResults(); applyStatusFilter();
+  // ── Stagiaire — calcul et remplissage ────────────────────────
+  const stag = computeStagiaire(data);
+
+  els.stagTmBim.textContent      = formatEuro(stag.tmBim);
+  els.stagOaBim.textContent      = formatEuro(stag.oaBim);
+  els.stagTotalBim.textContent   = formatEuro(stag.honoraireBim);
+  els.stagBaseBim.textContent    = stag.honoraireBim !== null
+    ? `${formatEuro(bimTM.value + bimOA.value)} × 75%`
+    : '';
+
+  els.stagTmNonBim.textContent      = formatEuro(stag.tmNonBim);
+  els.stagOaNonBim.textContent      = formatEuro(stag.oaNonBim);
+  els.stagTotalNonBim.textContent   = formatEuro(stag.honairaireNonBim);
+  els.stagBaseNonBim.textContent    = stag.honairaireNonBim !== null
+    ? `${formatEuro(normTM.value + normOA.value)} × 75%`
+    : '';
+
+  showResults();
+  applyFilters();
 }
 
-function applyStatusFilter() {
-  const status = els.statusInput.value;
-  const pricesGrid = document.querySelector('#tab-tarifs .prices-grid');
-  els.colBim.classList.remove('hidden'); els.colNonBim.classList.remove('hidden'); pricesGrid.classList.remove('single-col');
-  if (status === 'bim') { els.colNonBim.classList.add('hidden'); pricesGrid.classList.add('single-col'); }
-  else if (status === 'non-bim') { els.colBim.classList.add('hidden'); pricesGrid.classList.add('single-col'); }
+/**
+ * Calcule les tarifs stagiaire (75%) depuis les données agréé.
+ * Règles :
+ *   - Honoraire stagiaire = round2(honoraire_agréé × 0.75)   [arrondi standard]
+ *   - TM patient           = identique à l'agréé               [inchangé]
+ *   - Intervention OA      = honoraire_stagiaire − TM          [par déduction]
+ */
+function computeStagiaire(data) {
+  const bimTM  = getBestFee(data, '3300', '3510').value;
+  const bimOA  = getBestFee(data, '1300', '1510').value;
+  const normTM = getBestFee(data, '3600', '3810').value;
+  const normOA = getBestFee(data, '1600', '1810').value;
+
+  const honoraireAgree    = (bimTM  !== null && bimOA  !== null) ? round2(bimTM  + bimOA)  : null;
+  const honoraireNonAgree = (normTM !== null && normOA !== null) ? round2(normTM + normOA) : null;
+
+  const honoraireStagBim    = honoraireAgree    !== null ? round2(honoraireAgree    * 0.75) : null;
+  const honoraireStagNonBim = honoraireNonAgree !== null ? round2(honoraireNonAgree * 0.75) : null;
+
+  return {
+    // BIM
+    tmBim        : bimTM,                                                               // inchangé
+    oaBim        : (honoraireStagBim  !== null && bimTM  !== null) ? round2(honoraireStagBim  - bimTM)  : null,
+    honoraireBim : honoraireStagBim,
+    // Non-BIM
+    tmNonBim     : normTM,                                                              // inchangé
+    oaNonBim     : (honoraireStagNonBim !== null && normTM !== null) ? round2(honoraireStagNonBim - normTM) : null,
+    honairaireNonBim: honoraireStagNonBim,
+  };
+}
+
+/**
+ * Applique les deux filtres (statut patient + type médecin) sans nouvel appel API.
+ * Appelée à chaque changement de select ET après chaque renderResults.
+ */
+function applyFilters() {
+  const status = els.statusInput.value;   // 'all' | 'bim' | 'non-bim'
+  const doctor = els.doctorInput.value;   // 'agree' | 'stagiaire' | 'both'
+
+  // ── Visibilité des blocs médecin ─────────────────────────────
+  els.blockAgree.classList.toggle('hidden',    doctor === 'stagiaire');
+  els.blockStagiaire.classList.toggle('hidden', doctor === 'agree');
+
+  // ── Filtre patient dans le bloc Agréé ────────────────────────
+  applyPatientFilter(els.colBim, els.colNonBim, status);
+
+  // ── Filtre patient dans le bloc Stagiaire ────────────────────
+  applyPatientFilter(els.stagColBim, els.stagColNonBim, status);
+}
+
+/** Masque/affiche les colonnes BIM et Non-BIM selon le filtre patient, et adapte la grille. */
+function applyPatientFilter(colBimEl, colNonBimEl, status) {
+  if (!colBimEl || !colNonBimEl) return;
+  const grid = colBimEl.closest('.prices-grid');
+
+  colBimEl.classList.remove('hidden');
+  colNonBimEl.classList.remove('hidden');
+  grid?.classList.remove('single-col');
+
+  if (status === 'bim')     { colNonBimEl.classList.add('hidden'); grid?.classList.add('single-col'); }
+  if (status === 'non-bim') { colBimEl.classList.add('hidden');    grid?.classList.add('single-col'); }
 }
 
 // ============================================================================
